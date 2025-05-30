@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GPS Logger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h1>GPS + Elevation Logger</h1>
+  <label for="userId">User ID:</label>
+  <input type="text" id="userId" placeholder="Enter your user ID" />
+  <br><br>
+  <button id="toggleButton" onclick="toggleLogging()">Start Logging</button>
+  <p id="status">Not logging</p>
+
+  <script>
+    let logging = false;
+    let intervalId = null;
+    let sessionId = null;
+
+    function generateSessionId() {
+      return 'sess-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function toggleLogging() {
+      const userId = document.getElementById("userId").value.trim();
+      const status = document.getElementById("status");
+      const button = document.getElementById("toggleButton");
+
+      if (!userId) {
+        alert("Please enter a user ID.");
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      if (!logging) {
+        logging = true;
+        sessionId = generateSessionId();
+        button.textContent = "Stop Logging";
+        status.textContent = "Logging...";
+
+        intervalId = setInterval(() => {
+          navigator.geolocation.getCurrentPosition(async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const res = await fetch(`https://api.opentopodata.org/v1/test-dataset?locations=${lat},${lon}`);
+            const data = await res.json();
+            const elevation = data.results[0].elevation;
+
+            await fetch("/log", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                session_id: sessionId,
+                user_id: userId,
+                latitude: lat,
+                longitude: lon,
+                elevation: elevation
+              })
+            });
+
+            status.textContent = `Logging... (${new Date().toLocaleTimeString()})`;
+          }, () => {
+            status.textContent = "Location error.";
+          });
+        }, 1000);
+      } else {
+        logging = false;
+        clearInterval(intervalId);
+        status.textContent = "Not logging";
+        button.textContent = "Start Logging";
+      }
+    }
+  </script>
+</body>
+</html>
