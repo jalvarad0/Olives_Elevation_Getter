@@ -1,25 +1,21 @@
 {
   "name": "olives_elevation_getter",
   "version": "1.0.0",
-  "description": "This simple app is meant to pull the location of a device when the button is pressed and store that information in a database.",
-  "dependencies": {
-    "express": "^4.18.2",
-    "body-parser": "^1.20.2",
-    "pg": "^8.10.0"
-  },
+  "description": "A web app to log device GPS and elevation data into a database and visualize it.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.16.0"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jalvarad0/Olives_Elevation_Getter.git"
+    "url": "https://github.com/jalvarad0/Olives_Elevation_Getter.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/jalvarad0/Olives_Elevation_Getter/issues"
-  },
-  "homepage": "https://github.com/jalvarad0/Olives_Elevation_Getter#readme"
+  "license": "ISC"
 }

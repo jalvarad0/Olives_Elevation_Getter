@@ -47,23 +47,30 @@
           navigator.geolocation.getCurrentPosition(async (position) => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            const res = await fetch(`https://api.opentopodata.org/v1/test-dataset?locations=${lat},${lon}`);
-            const data = await res.json();
-            const elevation = data.results[0].elevation;
 
-            await fetch("/log", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                session_id: sessionId,
-                user_id: userId,
-                latitude: lat,
-                longitude: lon,
-                elevation: elevation
-              })
-            });
+            try {
+              const res = await fetch(`/elevation?lat=${lat}&lon=${lon}`);
+              const data = await res.json();
+              const elevation = data.results[0].elevation;
 
-            status.textContent = `Logging... (${new Date().toLocaleTimeString()})`;
+              await fetch("/log", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  session_id: sessionId,
+                  user_id: userId,
+                  latitude: lat,
+                  longitude: lon,
+                  elevation: elevation
+                })
+              });
+
+              status.textContent = `Logging... (${new Date().toLocaleTimeString()})`;
+            } catch (err) {
+              console.error("Logging error:", err);
+              status.textContent = "Logging failed.";
+            }
+
           }, () => {
             status.textContent = "Location error.";
           });
